@@ -43,7 +43,8 @@ lepAna.miniIsolationVetoLeptons = None # use 'inclusive' to veto inclusive lepto
 lepAna.doIsolationScan = False
 
 # Lepton Preselection
-lepAna.loose_electron_id = "POG_MVA_ID_Spring15_NonTrig_VLooseIdEmu"
+#lepAna.loose_electron_id = "POG_MVA_ID_Spring15_NonTrig_VLooseIdEmu"
+lepAna.loose_electron_id = ""
 isolation = "miniIso"
 
 jetAna.copyJetsByValue = True # do not remove this
@@ -63,16 +64,16 @@ if SOS == True:
     ttHLepSkim.maxLeptons = 999
     ttHLepSkim.ptCuts = [5,3]
     
-    # Jet-Met Skimming
-    ttHJetMETSkim.jetPtCuts = [100,]
-    ttHJetMETSkim.metCut    = 100
+#    # Jet-Met Skimming
+#    ttHJetMETSkim.jetPtCuts = [0,]
+#    ttHJetMETSkim.metCut    = 0
 
     # Lepton Preselection
     lepAna.inclusive_muon_pt  = 3
     lepAna.loose_muon_pt  = 3
     lepAna.inclusive_electron_pt  = 5
     lepAna.loose_electron_pt  = 5
-    isolation = "absIso03"
+    isolation = None
 
     # Lepton-Jet Cleaning
     jetAna.minLepPt = 20 
@@ -307,6 +308,19 @@ from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import *
 
 selectedComponents = [ TTLep_pow ];
 
+selectedComponents = [];
+allsamp = []
+
+#selectedComponents = TChiNeuWZ_compressed
+#for comp in selectedComponents: comp.splitFactor = len(comp.files)/10
+#allsamp = allsamp + selectedComponents
+selectedComponents = [WJetsToLNu_LO,TTJets_SingleLeptonFromTbar,TTJets_SingleLeptonFromT]
+for comp in selectedComponents: comp.splitFactor = len(comp.files)/3
+allsamp = allsamp + selectedComponents
+
+selectedComponents = allsamp
+
+
 
 #selectedComponents = SMS_miniAODv2_T1tttt
 #susyCounter.SMS_varying_masses = ['genSusyMGluino','genSusyMNeutralino']
@@ -335,8 +349,6 @@ if runData and not isTest: # For running on data
 #    processing = "Run2015B-PromptReco-v1"; short = "Run2015B_v1"; run_ranges = [ (251643,251883) ]; useAAA=False; is50ns=True; triggerFlagsAna.checkL1Prescale = False;
 #    json = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_254833_13TeV_PromptReco_Collisions15_JSON.txt"; # taken at 50 ns with 25 ns reconstruction
 #    processing = "Run2015C-PromptReco-v1"; short = "Run2015C_v1"; run_ranges = [ (254833,254833) ]; useAAA=False; is50ns=True; triggerFlagsAna.checkL1Prescale = False;
-
-#    normalize with: brilcalc lumi --normtag /afs/cern.ch/user/c/cmsbril/public/normtag_json/OfflineNormtagV1.json -i jsonfile.txt
 
     is50ns = False
     dataChunks = []
@@ -547,8 +559,8 @@ if getHeppyOption("fast"):
     from CMGTools.TTHAnalysis.analyzers.ttHFastLepSkimmer import ttHFastLepSkimmer
     fastSkim = cfg.Analyzer(
         ttHFastLepSkimmer, name="ttHFastLepSkimmer",
-        muons = 'slimmedMuons', muCut = lambda mu : mu.pt() > 5 and mu.isLooseMuon(),
-        electrons = 'slimmedElectrons', eleCut = lambda ele : ele.pt() > 7,
+        muons = 'slimmedMuons', muCut = lambda mu : mu.pt() > 3 and mu.isLooseMuon(),
+        electrons = 'slimmedElectrons', eleCut = lambda ele : ele.pt() > 5,
         minLeptons = 2, 
     )
     if jsonAna in sequence:
@@ -570,6 +582,8 @@ if not getHeppyOption("isCrab"):
         if not tier2Checker.available(comp.dataset):
             print "Dataset %s is not available, will use AAA" % comp.dataset
             changeComponentAccessMode.convertComponent(comp, "root://cms-xrd-global.cern.ch/%s")
+            if 'X509_USER_PROXY' not in os.environ or "/afs/" not in os.environ['X509_USER_PROXY']:
+                raise RuntimeError, "X509_USER_PROXY not defined or not pointing to /afs"
 
 ## output histogram
 outputService=[]

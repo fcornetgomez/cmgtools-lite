@@ -168,7 +168,15 @@ MODULES.append ( ('recalcLepAwareVars',ObjFloatCalc("recalcLepAwareVars","LepGoo
 #MODULES.append( ('MuMVAId', MuonMVAFriend("BPH",     "/afs/cern.ch/work/g/gpetrucc/TREES_70X_240914/0_muMVAId_v1/train70XBPH_BDTG.weights.xml", label="BPH")) )
 #MODULES.append( ('MuMVAId', MuonMVAFriend("BPHCalo", "/afs/cern.ch/work/g/gpetrucc/TREES_70X_240914/0_muMVAId_v1/train70XBPHCalo_BDTG.weights.xml", label="BPHCalo")) )
 #MODULES.append( ('MuMVAId', MuonMVAFriend("Full",    "/afs/cern.ch/work/g/gpetrucc/TREES_70X_240914/0_muMVAId_v1/train70XFull_BDTG.weights.xml", label="Full")) )
-#from CMGTools.TTHAnalysis.tools.LepMVAFriend import LepMVAFriend
+from CMGTools.TTHAnalysis.tools.LepMVAFriend import LepMVAFriend
+#MODULES.append( ('LepMVAFriend', LepMVAFriend(("/afs/cern.ch/user/g/gpetrucc/w/TREES_72X_171214/0_lepMVA_v1/%s_BDTG.weights.xml",
+#                                               "/afs/cern.ch/user/g/gpetrucc/w/TREES_72X_171214/0_lepMVA_v1/%s_BDTG.weights.xml"))) )
+#MODULES.append( ('LepMVAFriend', LepMVAFriend(("/afs/cern.ch/work/g/gpetrucc/TREES_70X_240914/0_lepMVA_v1/SV_%s_BDTG.weights.xml",
+#                                               "/afs/cern.ch/work/g/gpetrucc/TREES_70X_240914/0_lepMVA_v1/SV_%s_BDTG.weights.xml",),
+#                                               training="muMVAId_SV", label="SV")) )
+MODULES.append( ('LepMVAFriendMoriond16', lambda: LepMVAFriend((os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/data/leptonMVA/tth/%s_BDTG.weights.xml",
+                                                                os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/data/leptonMVA/tth/%s_BDTG.weights.xml",),
+                                                               training="forMoriond16", label="TTHMoriond16")) )
 #MODULES.append( ('LepMVAFriend', LepMVAFriend(("/afs/cern.ch/user/g/gpetrucc/w/TREES_72X_171214/0_lepMVA_v1/%s_BDTG.weights.xml",
 #                                               "/afs/cern.ch/user/g/gpetrucc/w/TREES_72X_171214/0_lepMVA_v1/%s_BDTG.weights.xml"))) )
 #MODULES.append( ('LepMVAFriend', LepMVAFriend(("/afs/cern.ch/work/g/gpetrucc/TREES_70X_240914/0_lepMVA_v1/SV_%s_BDTG.weights.xml",

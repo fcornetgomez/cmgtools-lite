@@ -35,48 +35,12 @@ _CommonVars = {
     MVAVar("LepGood_sip3d",lambda x: x.sip3d),
     MVAVar("LepGood_dxy := log(abs(LepGood_dxy))",lambda x: log(abs(x.dxy))),
     MVAVar("LepGood_dz  := log(abs(LepGood_dz))", lambda x: log(abs(x.dz))),
-], 'forMoriond16elmvaIdPhys14': [
-    MVAVar("LepGood_pt",lambda x: x.pt),
-    MVAVar("LepGood_eta",lambda x: x.eta),
-    MVAVar("LepGood_jetNDauChargedMVASel",lambda x: x.jetNDauChargedMVASel),
-    MVAVar("LepGood_miniRelIsoCharged",lambda x: x.miniRelIsoCharged),
-    MVAVar("LepGood_miniRelIsoNeutral",lambda x: x.miniRelIsoNeutral),
-    MVAVar("LepGood_jetPtRelv2",lambda x: x.jetPtRelv2),
-    MVAVar("LepGood_jetPtRatio := min(LepGood_jetPtRatiov2,1.5)", lambda x : min(x.jetPtRatiov2,1.5)),
-    MVAVar("LepGood_jetBTagCSV := max(LepGood_jetBTagCSV,0)", lambda x : max(x.jetBTagCSV,0.)),
-    MVAVar("LepGood_sip3d",lambda x: x.sip3d),
-    MVAVar("LepGood_dxy := log(abs(LepGood_dxy))",lambda x: log(abs(x.dxy))),
-    MVAVar("LepGood_dz  := log(abs(LepGood_dz))", lambda x: log(abs(x.dz))),
-], 'WithPtV2': [
-    MVAVar("LepGood_pt",lambda x: x.pt),
-    MVAVar("LepGood_miniRelIsoCharged",lambda x: x.miniRelIsoCharged),
-    MVAVar("LepGood_miniRelIsoNeutral",lambda x: x.miniRelIsoNeutral),
-    MVAVar("LepGood_jetPtRelv2",lambda x: x.jetPtRelv2),
-    MVAVar("LepGood_jetPtRatio := min(LepGood_jetPtRatio_LepAwareJECv2,1.5)", lambda x : min(x.jetPtRatiov2,1.5)),
-    MVAVar("LepGood_jetBTagCSV := max(LepGood_jetBTagCSV,0)", lambda x : max(x.jetBTagCSV,0.)),
-    MVAVar("LepGood_sip3d",lambda x: x.sip3d),
-    MVAVar("LepGood_dxy := log(abs(LepGood_dxy))",lambda x: log(abs(x.dxy))),
-    MVAVar("LepGood_dz  := log(abs(LepGood_dz))", lambda x: log(abs(x.dz))),
-], 'WithPtV2_oldTrees': [
-    MVAVar("LepGood_pt",lambda x: x.pt),
-    MVAVar("LepGood_miniRelIsoCharged",lambda x: x.miniRelIsoCharged),
-    MVAVar("LepGood_miniRelIsoNeutral",lambda x: x.miniRelIsoNeutral),
-    MVAVar("LepGood_jetPtRelv2",lambda x: x.jetPtRelv2),
-    MVAVar("LepGood_jetPtRatio := min(LepGood_jetPtRatio_LepAwareJECv2,1.5)", lambda x : min(x.jetPtRatio_LepAwareJECv2,1.5)),
-    MVAVar("LepGood_jetBTagCSV := max(LepGood_jetBTagCSV,0)", lambda x : max(x.jetBTagCSV,0.)),
-    MVAVar("LepGood_sip3d",lambda x: x.sip3d),
-    MVAVar("LepGood_dxy := log(abs(LepGood_dxy))",lambda x: log(abs(x.dxy))),
-    MVAVar("LepGood_dz  := log(abs(LepGood_dz))", lambda x: log(abs(x.dz))),
-] 
+]
 }
 
 _ElectronVars = {
  'forMoriond16': [
     MVAVar("LepGood_mvaIdSpring15",lambda x: x.mvaIdSpring15)
- ], 'forMoriond16elmvaIdPhys14': [
-    MVAVar("LepGood_mvaIdPhys14",lambda x: x.mvaIdPhys14)
- ], 'V2': [
-    MVAVar("LepGood_mvaIdPhys14",lambda x: x.mvaIdPhys14)
  ]
 }
 
@@ -90,10 +54,7 @@ class LeptonMVA:
         if type(basepath) == tuple: basepathmu, basepathel  = basepath
         else:                       basepathmu, basepathel  = basepath, basepath
         print "Booking %s %s" % (training, basepath)
-        if "V2" in training:
-            muVars = _CommonVars[training][:] + _MuonVars[:]
-            elVars = _CommonVars[training][:] + _ElectronVars['V2'][:]
-        elif "forMoriond16" in training:
+        if "forMoriond16" in training:
             muVars = _CommonVars[training][:] + _MuonVars[:]
             elVars = _CommonVars[training][:] + _ElectronVars[training][:]
         if not muVars:
@@ -102,22 +63,11 @@ class LeptonMVA:
             self.mu = CategorizedMVA([
                 ( lambda x: True , MVATool("BDTG",basepathmu%"mu",_CommonSpect,muVars) ),
             ])
-        else:
-            self.mu = CategorizedMVA([
-                ( lambda x: abs(x.eta) <  1.5 , MVATool("BDTG",basepathmu%"mu_eta_b",_CommonSpect,muVars) ),
-                ( lambda x: abs(x.eta) >= 1.5 , MVATool("BDTG",basepathmu%"mu_eta_e",_CommonSpect,muVars) ),
-            ])
         if not elVars:
             self.el = lambda el, ncorr : -37.0;
         elif "forMoriond16" in training:
             self.el = CategorizedMVA([
                 ( lambda x: True, MVATool("BDTG",basepathel%"el",_CommonSpect,elVars) ),
-            ])
-        else:
-            self.el = CategorizedMVA([
-                ( lambda x: abs(x.eta) <  0.8                         , MVATool("BDTG",basepathel%"el_eta_cb",_CommonSpect,elVars) ),
-                ( lambda x: abs(x.eta) >= 0.8 and abs(x.eta) <  1.479 , MVATool("BDTG",basepathel%"el_eta_fb",_CommonSpect,elVars) ),
-                ( lambda x: abs(x.eta) >= 1.479                       , MVATool("BDTG",basepathel%"el_eta_ec",_CommonSpect,elVars) ),
             ])
     def __call__(self,lep,ncorr=0):
         if   abs(lep.pdgId) == 11: return self.el(lep,ncorr)
@@ -153,9 +103,6 @@ if __name__ == '__main__':
                 'forMoriond16' : LepMVAFriend(("/afs/cern.ch/user/p/peruzzi/work/cmgtools/CMSSW_7_4_14/src/CMGTools/TTHAnalysis/macros/leptons/weights/forMoriond16%s_BDTG.weights.xml",
                                                "/afs/cern.ch/user/p/peruzzi/work/cmgtools/CMSSW_7_4_14/src/CMGTools/TTHAnalysis/macros/leptons/weights/forMoriond16%s_BDTG.weights.xml",),
                                               training="forMoriond16"),
-#                'WithPtV2' : LepMVAFriend(("/afs/cern.ch/work/g/gpetrucc/CMSSW_7_4_7/src/CMGTools/TTHAnalysis/macros/leptons/weights/%s_withpt_v2_BDTG.weights.xml",
-#                                           "/afs/cern.ch/work/g/gpetrucc/CMSSW_7_4_7/src/CMGTools/TTHAnalysis/macros/leptons/weights/%s_withpt_v2_BDTG.weights.xml",),
-#                                           training=("WithPtV2_oldTrees" if trees=="old" else 'WithPtV2')),
             }
         def analyze(self,ev):
             print "\nrun %6d lumi %4d event %d: leps %d" % (ev.run, ev.lumi, ev.evt, ev.nLepGood)

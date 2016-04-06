@@ -1,0 +1,15 @@
+soft_true+: TChiNeuWZ_mCh100_mChi100_mChi80 : 1 : LepGood_mcMatchId != 0 ; FillColor=ROOT.kGreen+2, Label="Prompt compressed"
+soft_true+: TChiNeuWZ_mCh100_mChi100_mChi90 : 1 : LepGood_mcMatchId != 0 ; FillColor=ROOT.kGreen+2, Label="Prompt compressed"
+soft_true+: TChiNeuWZ_mCh100_mChi100_mChi95 : 1 : LepGood_mcMatchId != 0 ; FillColor=ROOT.kGreen+2, Label="Prompt compressed"
+
+TT_true+:  TTJets_SingleLeptonFromT: 1: LepGood_mcMatchId != 0 ; FillColor=ROOT.kGreen+2, Label="prompt tt"
+TT_true+:  TTJets_SingleLeptonFromTbar: 1: LepGood_mcMatchId != 0 ; FillColor=ROOT.kGreen+2, Label="prompt tt"
+TT_red:  TTJets_SingleLeptonFromT:    1: LepGood_mcMatchId == 0 ; FillColor=ROOT.kGray+2, Label="tt\, non-prompt"
+TT_red:  TTJets_SingleLeptonFromTbar: 1: LepGood_mcMatchId == 0 ; FillColor=ROOT.kGray+2, Label="non-pr (tt)"
+TT_bjets: TTJets_SingleLeptonFromT: xsec: LepGood_mcMatchAny == 5 ; FillColor=ROOT.kBlue-2, Label="tt\, b\#rightarrowl"
+TT_bjets: TTJets_SingleLeptonFromTbar: xsec: LepGood_mcMatchAny == 5 ; FillColor=ROOT.kBlue-2, Label="tt\, b\#rightarrowl"
+TT_cjets: TTJets: xsec: LepGood_mcMatchAny == 4 ; FillColor=ROOT.kGray+2, Label="tt\, c\#rightarrowl"
+TT_ljets: TTJets: xsec: LepGood_mcMatchId == 0 && LepGood_mcMatchAny != 5 && LepGood_mcMatchAny != 4 ; FillColor=ROOT.kTeal+2, Label="tt\, j\#rightarrowl_{true}"
+TT_fake: TTJets_SingleLeptonFromT: 1: LepGood_mcMatchAny == 0 ; FillColor=ROOT.kGray+3, Label="tt\, j\#rightarrowl_{fake}"
+TT_fake: TTJets_SingleLeptonFromTbar: 1: LepGood_mcMatchAny == 0 ; FillColor=ROOT.kGray+3, Label="tt\, j\#rightarrowl_{fake}"
+

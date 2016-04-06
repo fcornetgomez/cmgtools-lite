@@ -28,6 +28,9 @@ leptonTypeSusy = NTupleObjectType("leptonSusy", baseObjectTypes = [ leptonType ]
 leptonTypeSusyExtra = NTupleObjectType("leptonSusyExtra", baseObjectTypes = [ leptonTypeSusy, leptonTypeExtra ], variables = [
     NTupleVariable("miniRelIsoCharged",   lambda x : getattr(x,'miniAbsIsoCharged',-99)/x.pt()),
     NTupleVariable("miniRelIsoNeutral",   lambda x : getattr(x,'miniAbsIsoNeutral',-99)/x.pt()),
+    NTupleVariable("RelIsoFix03",   lambda x : getattr(x,'AbsIsoFix03',-99)/x.pt()),
+    NTupleVariable("RelIsoChargedFix03",   lambda x : getattr(x,'AbsIsoChargedFix03',-99)/x.pt()),
+    NTupleVariable("RelIsoNeutralFix03",   lambda x : getattr(x,'AbsIsoNeutralFix03',-99)/x.pt()),
     # IVF variables
     NTupleVariable("hasSV",   lambda x : (2 if getattr(x,'ivfAssoc','') == "byref" else (0 if getattr(x,'ivf',None) == None else 1)), int, help="2 if lepton track is from a SV, 1 if loosely matched, 0 if no SV found."),
     NTupleVariable("svRedPt", lambda x : getattr(x, 'ivfRedPt', 0), help="pT of associated SV, removing the lepton track"),
@@ -71,6 +74,11 @@ leptonTypeSusyExtra = NTupleObjectType("leptonSusyExtra", baseObjectTypes = [ le
     NTupleVariable("jetCorrFactor_L1L2L3Res", lambda x: x.jet.CorrFactor_L1L2L3Res if hasattr(x.jet,'CorrFactor_L1L2L3Res') else 1, help="matched jet L1L2L3Res correction factor"),        
     NTupleVariable("jetPtRatio_Raw", lambda lepton : -1 if not hasattr(lepton,'jet') else lepton.pt()/lepton.jet.pt() if not hasattr(lepton.jet,'rawFactor') else lepton.pt()/(lepton.jet.pt()*lepton.jet.rawFactor()), help="pt(lepton)/rawpt(nearest jet)"),
     NTupleVariable("jetPtRelHv2", lambda lepton : ptRelHv2(lepton) if hasattr(lepton,'jet') else -1, help="pt of the jet (subtracting the lepton) transverse to the lepton axis - v2"),
+    NTupleVariable("isoRelH02", lambda lepton : isoRelH(lepton,'02') if hasattr(lepton,'isoSumRawP4Charged02') else -1, help="transverse relative isolation R=0.2 H"),
+    NTupleVariable("isoRelH03", lambda lepton : isoRelH(lepton,'03') if hasattr(lepton,'isoSumRawP4Charged03') else -1, help="transverse relative isolation R=0.3 H"),
+    NTupleVariable("isoRelH04", lambda lepton : isoRelH(lepton,'04') if hasattr(lepton,'isoSumRawP4Charged04') else -1, help="transverse relative isolation R=0.4 H"),
+    NTupleVariable("isoRelH05", lambda lepton : isoRelH(lepton,'05') if hasattr(lepton,'isoSumRawP4Charged05') else -1, help="transverse relative isolation R=0.5 H"),
+    NTupleVariable("isoRelH06", lambda lepton : isoRelH(lepton,'06') if hasattr(lepton,'isoSumRawP4Charged06') else -1, help="transverse relative isolation R=0.6 H"),
     # variables for isolated electron trigger matching cuts
     NTupleVariable("ecalPFClusterIso", lambda lepton :  lepton.ecalPFClusterIso() if abs(lepton.pdgId())==11 else -999, help="Electron ecalPFClusterIso"),
     NTupleVariable("hcalPFClusterIso", lambda lepton :  lepton.hcalPFClusterIso() if abs(lepton.pdgId())==11 else -999, help="Electron hcalPFClusterIso"),
@@ -259,4 +267,10 @@ def ptRelHv2(lep): # use only if jetAna.calculateSeparateCorrections==True
     p4l = lep.p4()
     l = ROOT.TLorentzVector(p4l.Px(),p4l.Py(),p4l.Pz(),p4l.E())
     return (m-l).Perp(l.Vect())
+def isoRelH(lep,tag):
+    iso = getattr(lep,'isoSumRawP4Charged'+tag)+getattr(lep,'isoSumRawP4Neutral'+tag)
+    p4l = lep.p4()
+    l = ROOT.TLorentzVector(p4l.Px(),p4l.Py(),p4l.Pz(),p4l.E())
+    m = ROOT.TLorentzVector(iso.Px(),iso.Py(),iso.Pz(),iso.E())
+    return m.Perp(l.Vect())
    
