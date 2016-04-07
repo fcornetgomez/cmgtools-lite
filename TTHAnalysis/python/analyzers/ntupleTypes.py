@@ -31,6 +31,9 @@ leptonTypeSusyExtra = NTupleObjectType("leptonSusyExtra", baseObjectTypes = [ le
     NTupleVariable("RelIsoFix03",   lambda x : getattr(x,'AbsIsoFix03',-99)/x.pt()),
     NTupleVariable("RelIsoChargedFix03",   lambda x : getattr(x,'AbsIsoChargedFix03',-99)/x.pt()),
     NTupleVariable("RelIsoNeutralFix03",   lambda x : getattr(x,'AbsIsoNeutralFix03',-99)/x.pt()),
+    NTupleVariable("RelIsoFix04",   lambda x : getattr(x,'AbsIsoFix04',-99)/x.pt()),
+    NTupleVariable("RelIsoChargedFix04",   lambda x : getattr(x,'AbsIsoChargedFix04',-99)/x.pt()),
+    NTupleVariable("RelIsoNeutralFix04",   lambda x : getattr(x,'AbsIsoNeutralFix04',-99)/x.pt()),
     # IVF variables
     NTupleVariable("hasSV",   lambda x : (2 if getattr(x,'ivfAssoc','') == "byref" else (0 if getattr(x,'ivf',None) == None else 1)), int, help="2 if lepton track is from a SV, 1 if loosely matched, 0 if no SV found."),
     NTupleVariable("svRedPt", lambda x : getattr(x, 'ivfRedPt', 0), help="pT of associated SV, removing the lepton track"),
