@@ -56,13 +56,6 @@ leptonTypeSusyExtraLight = NTupleObjectType("leptonSusyExtraLight", baseObjectTy
     NTupleVariable("mcPromptTau", lambda x : x.mcMatchAny_gp.isDirectPromptTauDecayProductFinalState() if getattr(x,"mcMatchAny_gp",None) else 0, int, mcOnly=True, help="isDirectPromptTauDecayProductFinalState"),
     NTupleVariable("mcPromptGamma", lambda x : x.mcPho.isPromptFinalState() if getattr(x,"mcPho",None) else 0, int, mcOnly=True, help="Photon isPromptFinalState"),
     NTupleVariable("mcGamma", lambda x : getattr(x,"mcPho",None) != None, int, mcOnly=True, help="Matched to a photon"),
-    # variables for isolated electron trigger matching cuts
-    NTupleVariable("ecalPFClusterIso", lambda lepton :  lepton.ecalPFClusterIso() if abs(lepton.pdgId())==11 else -999, help="Electron ecalPFClusterIso"),
-    NTupleVariable("hcalPFClusterIso", lambda lepton :  lepton.hcalPFClusterIso() if abs(lepton.pdgId())==11 else -999, help="Electron hcalPFClusterIso"),
-    NTupleVariable("dr03TkSumPt", lambda lepton: lepton.dr03TkSumPt() if abs(lepton.pdgId())==11 else -999, help="Electron dr03TkSumPt isolation"),
-    NTupleVariable("trackIso", lambda lepton :  lepton.trackIso() if abs(lepton.pdgId())==11 else -999, help="Electron trackIso (in cone of 0.4)"),
-    NTupleVariable("idEmu", lambda lepton: _susy2lss_idEmu_cuts(lepton), help="Electron pass trigger ID emulation cuts"),
-    NTupleVariable("idIsoEmu", lambda lepton: _susy2lss_idIsoEmu_cuts(lepton), help="Electron pass trigger ID+ISO emulation cuts"),
 ])
 leptonTypeSusyExtraLight.addSubObjects([
         NTupleSubObject("jetLepAwareJEC",lambda x: jetLepAwareJEC(x), tlorentzFourVectorType)
