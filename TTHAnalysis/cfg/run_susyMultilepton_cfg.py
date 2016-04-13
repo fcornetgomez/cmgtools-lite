@@ -24,7 +24,7 @@ saveSuperClusterVariables = getHeppyOption("saveSuperClusterVariables",False)
 removeJetReCalibration = getHeppyOption("removeJetReCalibration",False)
 removeJecUncertainty = getHeppyOption("removeJecUncertainty",False)
 doMETpreprocessor = getHeppyOption("doMETpreprocessor",False)
-doT1METCorr = getHeppyOption("doT1METCorr",False)
+skipT1METCorr = getHeppyOption("skipT1METCorr",False)
 #doAK4PFCHSchargedJets = getHeppyOption("doAK4PFCHSchargedJets",False)
 forcedSplitFactor = getHeppyOption("splitFactor",-1)
 forcedFineSplitFactor = getHeppyOption("fineSplitFactor",-1)
@@ -67,26 +67,25 @@ if SOS == True:
 ## -- SOS preselection settings ---
 
     # Lepton Skimming
-    ttHLepSkim.minLeptons = 2
+    ttHLepSkim.minLeptons = 1
     ttHLepSkim.maxLeptons = 999
-    ttHLepSkim.ptCuts = [5,3]
+    ttHLepSkim.ptCuts = [0,0]
     
 #    # Jet-Met Skimming
 #    ttHJetMETSkim.jetPtCuts = [0,]
 #    ttHJetMETSkim.metCut    = 0
 
     # Lepton Preselection
-    lepAna.inclusive_muon_pt  = 3
-    lepAna.loose_muon_pt  = 3
-    lepAna.inclusive_electron_pt  = 5
-    lepAna.loose_electron_pt  = 5
+    lepAna.inclusive_muon_pt  = 0
+    lepAna.loose_muon_pt  = 0
+    lepAna.inclusive_electron_pt  = 0
+    lepAna.loose_electron_pt  = 0
     isolation = None
 
-    # Lepton-Jet Cleaning
-    jetAna.minLepPt = 20 
-    jetAnaScaleUp.minLepPt = 20 
-    jetAnaScaleDown.minLepPt = 20 
-    # otherwise with only absIso cut at 10 GeV and no relIso we risk cleaning away good jets
+#    # Lepton-Jet Cleaning
+#    jetAna.minLepPt = 20 
+#    jetAnaScaleUp.minLepPt = 20 
+#    jetAnaScaleDown.minLepPt = 20 
 
 if isolation == "miniIso": 
     lepAna.loose_muon_isoCut     = lambda muon : muon.miniRelIso < 0.4 and muon.sip3D() < 8
@@ -264,7 +263,7 @@ metAna.doTkMet = True
 treeProducer.globalVariables.append(NTupleVariable("met_trkPt", lambda ev : ev.tkMet.pt() if  hasattr(ev,'tkMet') else  0, help="tkmet p_{T}"))
 treeProducer.globalVariables.append(NTupleVariable("met_trkPhi", lambda ev : ev.tkMet.phi() if  hasattr(ev,'tkMet') else  0, help="tkmet phi"))
 
-if doT1METCorr:
+if not skipT1METCorr:
     if doMETpreprocessor: 
         print "WARNING: you're running the MET preprocessor and also Type1 MET corrections. This is probably not intended."
     jetAna.calculateType1METCorrection = True
@@ -311,53 +310,50 @@ if runSMS:
     ttHLepSkim.requireSameSignPair = True
 
 from CMGTools.RootTools.samples.samples_13TeV_RunIIFall15MiniAODv2 import *
-#from CMGTools.RootTools.samples.samples_13TeV_74X_susySignalsPriv import *
-#from CMGTools.RootTools.samples.samples_13TeV_signals import *
 from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import *
 
 selectedComponents = [ TTLep_pow ];
 
-selectedComponents = [];
-allsamp = []
+TChiNeuWZ_mCh100_mChi100_mChi95 = kreator.makeMCComponentFromEOS('TChiNeuWZ_mCh100_mChi100_mChi95','/TChiWZDeg_miniAODSIM_76X_lepOnly_dM5gev/','/store/user/castello/susy/%s',".*root",1)
+TChiNeuWZ_mCh100_mChi100_mChi90 = kreator.makeMCComponentFromEOS('TChiNeuWZ_mCh100_mChi100_mChi90','/TChiWZDeg_miniAODSIM_76X_lepOnly_dM10gev/','/store/user/castello/susy/%s',".*root",1)
+TChiNeuWZ_mCh100_mChi100_mChi80 = kreator.makeMCComponentFromEOS('TChiNeuWZ_mCh100_mChi100_mChi80','/TChiWZDeg_miniAODSIM_76X_lepOnly_dM20gev/','/store/user/castello/susy/%s',".*root",1)
+TChiNeuWZ_compressed = [TChiNeuWZ_mCh100_mChi100_mChi95,TChiNeuWZ_mCh100_mChi100_mChi90,TChiNeuWZ_mCh100_mChi100_mChi80]
+for comp in TChiNeuWZ_compressed:
+    comp.splitFactor = len(comp.files) / 100 # 100 ev. per file
 
-#selectedComponents = TChiNeuWZ_compressed
-#for comp in selectedComponents: comp.splitFactor = len(comp.files)/10
-#allsamp = allsamp + selectedComponents
+TChiNeuSlepSneu_mCh300_mChi270_SS = kreator.makeMCComponentFromEOS('TChiNeuSlepSneu_mCh300_mChi270_SS', '/TChiNeuSlepSneu_mCh300_mChi270_SS/', '/store/user/cheidegg/signals/miniaod76X/%s', ".*root", 0.386936  )
+TChiNeuSlepSneu_mCh450_mChi300_SS = kreator.makeMCComponentFromEOS('TChiNeuSlepSneu_mCh450_mChi300_SS', '/TChiNeuSlepSneu_mCh450_mChi300_SS/', '/store/user/cheidegg/signals/miniaod76X/%s', ".*root", 0.0734361 )
+TChiNeuSlepSneu_mCh750_mChi100    = kreator.makeMCComponentFromEOS('TChiNeuSlepSneu_mCh750_mChi100'   , '/TChiNeuSlepSneu_mCh750_mChi100/'   , '/store/user/cheidegg/signals/miniaod76X/%s', ".*root", 0.00669356)
+TChiNeuWZ_mCh150_mChi120 = kreator.makeMCComponentFromEOS('TChiNeuWZ_mCh150_mChi120', '/TChiNeuWZ_mCh150_mChi120/', '/store/user/cheidegg/signals/miniaod76X/%s', ".*root", 5.18086 )
+EWKino = [TChiNeuSlepSneu_mCh300_mChi270_SS,TChiNeuSlepSneu_mCh450_mChi300_SS,TChiNeuSlepSneu_mCh750_mChi100,TChiNeuWZ_mCh150_mChi120]
+for comp in TChiNeuWZ_compressed:
+    comp.splitFactor = len(comp.files) / 50 # 200 ev. per file
+
 selectedComponents = [WJetsToLNu_LO,TTJets_SingleLeptonFromTbar,TTJets_SingleLeptonFromT]
-for comp in selectedComponents: comp.splitFactor = len(comp.files)/3
-allsamp = allsamp + selectedComponents
-
-selectedComponents = allsamp
-
-
 
 from CMGTools.HToZZ4L.tools.configTools import printSummary, configureSplittingFromTime, cropToLumi
 
-_Wjets_DY = [WJetsToLNu,DYJetsToLL_M10to50,DYJetsToLL_M50]
-_fakes = [TTJets_DiLepton,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar,WWTo2L2Nu]
-_ttH = [TTHnobb,TTHnobb_pow]
-_TTV = [TTWToLNu,TTZToLLNuNu_LO,TTLLJets_m1to10]
-_convs = [TTGJets,TGJets,WGToLNuG,ZGTo2LG]
-_singleTop = [TToLeptons_sch_amcatnlo,TToLeptons_tch_amcatnlo,T_tWch,TBar_tWch]
-_diboson = [WZTo3LNu,ZZTo4L]
-_other = [tZq_ll,TTTT,WpWpJJ,WWDouble,WZZ] # WWZ ZZZ
+#_Wjets_DY = [WJetsToLNu,DYJetsToLL_M10to50,DYJetsToLL_M50]
+#_fakes = [TTJets_DiLepton,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar,WWTo2L2Nu]
+#_ttH = [TTHnobb,TTHnobb_pow]
+#_TTV = [TTWToLNu,TTZToLLNuNu_LO,TTLLJets_m1to10]
+#_convs = [TTGJets,TGJets,WGToLNuG,ZGTo2LG]
+#_singleTop = [TToLeptons_sch_amcatnlo,TToLeptons_tch_amcatnlo,T_tWch,TBar_tWch]
+#_diboson = [WZTo3LNu,ZZTo4L]
+#_other = [tZq_ll,TTTT,WpWpJJ,WWDouble,WZZ] # WWZ ZZZ
+#_fast = [DYJetsToLL_M10to50,WJetsToLNu,WJetsToLNu_LO,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar,TTGJets,TGJets,WGToLNuG]+_singleTop
+#_slow = [DYJetsToLL_M50,TTJets_DiLepton,ZGTo2LG,WWTo2L2Nu]+_TTV+_ttH+_diboson+_other+TChiNeuWZ_compressed
 
-#selectedComponents = _Wjets_DY + _fakes + _ttH + _TTV + _convs + _singleTop + _diboson + _other
 print 'Before cropping to lumi and adjusting the splitting:'
 printSummary(selectedComponents)
 
-_fast = [DYJetsToLL_M10to50,WJetsToLNu,TTJets_SingleLeptonFromT,TTJets_SingleLeptonFromTbar,TTGJets,TGJets,WGToLNuG]+_singleTop
-_slow = [DYJetsToLL_M50,TTJets_DiLepton,ZGTo2LG,WWTo2L2Nu]+_TTV+_ttH+_diboson+_other
-
-cropToLumi(_convs+_diboson+_other,50)
-
-configureSplittingFromTime(_fast,30,5)
-configureSplittingFromTime(_slow,100,5)
+configureSplittingFromTime(selectedComponents,200,5)
 
 print 'After cropping to lumi and adjusting the splitting:'
 printSummary(selectedComponents)
 # Use the dropLHEweights option if you don't need the per-event LHE weights! It saves a lot of space.
 
+selectedComponents += (TChiNeuWZ_compressed+EWKino)
 
 #selectedComponents = SMS_miniAODv2_T1tttt
 #susyCounter.SMS_varying_masses = ['genSusyMGluino','genSusyMNeutralino']
@@ -655,21 +651,9 @@ if getHeppyOption("dropLHEweights",False):
     susyCounter.doLHE = False
 
 ## Auto-AAA
+from CMGTools.RootTools.samples.autoAAAconfig import *
 if not getHeppyOption("isCrab"):
-    from CMGTools.Production import changeComponentAccessMode
-    from CMGTools.Production.localityChecker import LocalityChecker
-    tier2Checker = LocalityChecker("T2_CH_CERN", datasets="/*/*/MINIAOD*")
-    for comp in selectedComponents:
-        if len(comp.files) == 0: raise RuntimeError, "Empty component: "+comp.name
-        if not hasattr(comp,'dataset'): continue
-        if not re.match("/[^/]+/[^/]+/MINIAOD(SIM)?", comp.dataset): continue
-        if "/store/" not in comp.files[0]: continue
-        if re.search("/store/(group|user|cmst3)/", comp.files[0]): continue
-        if not tier2Checker.available(comp.dataset):
-            print "Dataset %s is not available, will use AAA" % comp.dataset
-            changeComponentAccessMode.convertComponent(comp, "root://cms-xrd-global.cern.ch/%s")
-            if 'X509_USER_PROXY' not in os.environ or "/afs/" not in os.environ['X509_USER_PROXY']:
-                raise RuntimeError, "X509_USER_PROXY not defined or not pointing to /afs"
+    autoAAA(selectedComponents)
 
 ## output histogram
 outputService=[]
