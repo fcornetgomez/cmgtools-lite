@@ -8,64 +8,41 @@ void trainLeptonID(TString name, TString sigfile, TString bkg1file, TString bkg2
     TFile *fOut = new TFile(name+".root","RECREATE");
     TString factory_conf = (!doMultiClass) ? "!V:!Color:Transformations=I" : "!V:!Color:Transformations=I:AnalysisType=Multiclass";
     TMVA::Factory *factory = new TMVA::Factory(name, fOut, factory_conf.Data());
+
+    TCut lepton = "1";
     
     if (name.Contains("forMoriond16")) {
         factory->AddVariable("LepGood_pt", 'D');
         factory->AddVariable("LepGood_eta", 'D');
-	//        factory->AddVariable("LepGood_jetNDauChargedMVASel", 'D');
+	factory->AddVariable("LepGood_jetNDauChargedMVASel", 'D');
 	factory->AddVariable("LepGood_miniRelIsoCharged", 'D');
 	factory->AddVariable("LepGood_miniRelIsoNeutral", 'D');
 	factory->AddVariable("LepGood_jetPtRelv2", 'D');
 	factory->AddVariable("LepGood_jetPtRatio := min(LepGood_jetPtRatiov2,1.5)", 'D');
-	//	factory->AddVariable("LepGood_jetBTagCSV := max(LepGood_jetBTagCSV,0)", 'D');
+	factory->AddVariable("LepGood_jetBTagCSV := max(LepGood_jetBTagCSV,0)", 'D');
         factory->AddVariable("LepGood_sip3d", 'D'); 
         factory->AddVariable("LepGood_dxy := log(abs(LepGood_dxy))", 'D');
         factory->AddVariable("LepGood_dz  := log(abs(LepGood_dz))",  'D');
+	lepton += "LepGood_miniRelIso<0.4 && LepGood_sip3d < 8";
+	if (name.Contains("_mu")) {
+	  factory->AddVariable("LepGood_segmentCompatibility",'D');
+	} else if (name.Contains("_el")) {
+	  factory->AddVariable("LepGood_mvaIdSpring15",'D');
+	}
+	else { std::cerr << "ERROR: must either be electron or muon." << std::endl; return; }
+	
     }
-    else if (name.Contains("SoftVariables")) {
-        factory->AddVariable("LepGood_pt", 'D');
-        factory->AddVariable("LepGood_eta", 'D');
-//        factory->AddVariable("LepGood_jetNDauChargedMVASel", 'D');
-	factory->AddVariable("LepGood_miniRelIsoCharged", 'D');
-	factory->AddVariable("LepGood_miniRelIsoNeutral", 'D');
-	factory->AddVariable("LepGood_isoRelH04", 'D');
-	factory->AddVariable("LepGood_RelIsoFix03 := min(LepGood_RelIsoFix03,2)", 'D');
-//	factory->AddVariable("LepGood_jetPtRelv2", 'D');
-//	factory->AddVariable("LepGood_jetPtRatio := min(LepGood_jetPtRatiov2,1.5)", 'D');
-//	factory->AddVariable("LepGood_jetBTagCSV := max(LepGood_jetBTagCSV,0)", 'D');
-        factory->AddVariable("LepGood_sip3d", 'D'); 
-        factory->AddVariable("LepGood_dxy := log(abs(LepGood_dxy))", 'D');
-        factory->AddVariable("LepGood_dz  := log(abs(LepGood_dz))",  'D');
+    else if (name.Contains("asMultiIso")){
+	factory->AddVariable("LepGood_miniRelIso", 'D');
+	factory->AddVariable("LepGood_jetPtRelv2", 'D');
+	factory->AddVariable("LepGood_jetPtRatio := min(LepGood_jetPtRatiov2,1.5)", 'D');
+	lepton += "LepGood_miniRelIso<0.4 && LepGood_sip3d < 8";
     }
-    else if (name.Contains("Soft06Variables")) {
-        factory->AddVariable("LepGood_pt", 'D');
-        factory->AddVariable("LepGood_eta", 'D');
-//        factory->AddVariable("LepGood_jetNDauChargedMVASel", 'D');
-	factory->AddVariable("LepGood_miniRelIsoCharged", 'D');
-	factory->AddVariable("LepGood_miniRelIsoNeutral", 'D');
-	factory->AddVariable("LepGood_isoRelH06", 'D');
-	factory->AddVariable("LepGood_RelIsoFix03 := min(LepGood_RelIsoFix03,2)", 'D');
-//	factory->AddVariable("LepGood_jetPtRelv2", 'D');
-//	factory->AddVariable("LepGood_jetPtRatio := min(LepGood_jetPtRatiov2,1.5)", 'D');
-//	factory->AddVariable("LepGood_jetBTagCSV := max(LepGood_jetBTagCSV,0)", 'D');
-        factory->AddVariable("LepGood_sip3d", 'D'); 
-        factory->AddVariable("LepGood_dxy := log(abs(LepGood_dxy))", 'D');
-        factory->AddVariable("LepGood_dz  := log(abs(LepGood_dz))",  'D');
-    }
-
-    if (name.Contains("_mu")) {
-      factory->AddVariable("LepGood_segmentCompatibility",'D');
-    } else if (name.Contains("_el")) {
-      factory->AddVariable("LepGood_mvaIdSpring15",'D');
-    }
-    else { std::cerr << "ERROR: must either be electron or muon." << std::endl; return; }
-
-    TCut lepton = "LepGood_RelIsoFix03*LepGood_pt<10 && LepGood_sip3d < 8 && abs(LepGood_eta)<1.5";
 
     if (name.Contains("mu")) {
-      lepton += "abs(LepGood_pdgId) == 13 && LepGood_pt>3";
+      lepton += "abs(LepGood_pdgId) == 13";
     } else if (name.Contains("el")) {
-      lepton += "abs(LepGood_pdgId) == 11 && LepGood_pt>5";
+      lepton += "abs(LepGood_pdgId) == 11";
     }
 
     double wSig = 1.0, wBkg = 1.0;
