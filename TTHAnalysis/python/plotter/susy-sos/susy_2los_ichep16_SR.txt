@@ -1,4 +1,5 @@
 ### Dilepton OS final state ######################
+event-filters: Flag_HBHENoiseFilter>=1&&Flag_HBHENoiseIsoFilter>=1&&Flag_CSCTightHalo2015Filter>=1&&Flag_goodVertices>=1&&Flag_eeBadScFilter>=1&&Flag_EcalDeadCellTriggerPrimitiveFilter>=1
 nLep: nLepGood == 2
 OS-ll: LepGood1_pdgId*LepGood2_pdgId<0
 #OS-ll (ee,mm) : LepGood1_pdgId*LepGood2_pdgId==-169 || LepGood1_pdgId*LepGood2_pdgId==-121
